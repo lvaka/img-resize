@@ -15,7 +15,7 @@ def run_main(length, image_format, compression, directory):
    if os.path.isdir(directory):
       batch = Batch(length=length, image_format=image_format, compression=compression, directory=directory)
       batch.batch()
-
+      print('Batch Resize Complete')
 
    else:
       print('Not a valid directory')
