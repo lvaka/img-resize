@@ -1,5 +1,5 @@
 import click
-from resize import Batch
+from lib.resize import Batch
 import os
 
 @click.command()
