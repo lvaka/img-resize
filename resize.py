@@ -5,7 +5,7 @@ import os
 @click.command()
 @click.option('-l','--length', default=1200, help='Maximum length of edge of image')
 @click.option('-i','--image_format', default='JPEG', help='Image format - JPEG, TIFF, WebP')
-@click.option('-c','--compression', help='Compression Level')
+@click.option('-c','--compression', default=75, help='Compression Level')
 @click.option('-d','--directory', required=True, help='Directory to batch resize')
 def run_main(length, image_format, compression, directory):
    """
