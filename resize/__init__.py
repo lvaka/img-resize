@@ -12,7 +12,7 @@ class Batch:
          length, format, compression, and directory       
       """
       self.length = kwargs.get('length', 1200)
-      self.image_format = kwargs.get('image_format', 'JPEG')
+      self.imageFormat = kwargs.get('image_format', 'JPEG')
       self.compression = int(kwargs.get('compression'))
       self.directory = kwargs.get('directory')
       self.resizeDir = os.path.join(kwargs.get('directory'), 'resized')
@@ -46,41 +46,53 @@ class Batch:
 
          print('Resizing ', fileName)
 
-         if isLandscape:
-            resizedImg = self.resizeLandscape(img, imgW, imgH)
+         if isLandscape and imgW > self.length:
+            img = self.resizeLandscape(img, imgW, imgH)
 
-         else:
-            resizedImg = self.resizePortrait(img, imgW, imgH)
+         elif imgH > self.length:
+            img = self.resizePortrait(img, imgW, imgH)
 
-         if resizedImg:
+         if img:
             """
                If resized image is returned and is not falsey,
                generate new filepath, save, then close out files
             """
-            
-            name, extension = os.path.splitext(fileName)
-            
-            if self.image_format is 'TIFF':
-               newFileName = name + '.tiff'
-               resizeFilePath = os.path.join(self.resizeDir, newFileName)
 
-               resizedImg.save(resizeFilePath, format="TIFF", compression="tiff_jpeg",quality=self.compression)
-
-            elif self.image_format is 'WebP':
-               newFileName = name + '.webp'
-               resizeFilePath = os.path.join(self.resizeDir, newFileName)
-
-               resizedImg.save(resizeFilePath, format="WebP", quality=self.compression)
-
-            else:
-               newFileName = name + '.jpg'
-               resizeFilePath = os.path.join(self.resizeDir, newFileName)
-
-               resizedImg.save(resizeFilePath, format="JPEG", quality=self.compression)
-
-            resizedImg.close()
+            self.saveImg(img, fileName)
 
          img.close()
+
+   def saveImg(self, img, fileName):
+      """
+         Saves Image by Type
+      """
+      name, extension = os.path.splitext(fileName)
+
+      def TIFFSave():
+         newFileName = name + '.tiff'
+         resizeFilePath = os.path.join(self.resizeDir, newFileName)
+
+         img.save(resizeFilePath, format="TIFF", compression="tiff_jpeg",quality=self.compression)
+
+      def WebPSave():
+         newFileName = name + '.webp'
+         resizeFilePath = os.path.join(self.resizeDir, newFileName)
+
+         img.save(resizeFilePath, format="WebP", quality=self.compression)
+
+      def JPEGSave():
+         newFileName = name + '.jpg'
+         resizeFilePath = os.path.join(self.resizeDir, newFileName)
+
+         img.save(resizeFilePath, format="JPEG", quality=self.compression)
+
+      saveMethods = {
+         'TIFF': TIFFSave,
+         'WebP': WebPSave,
+         'JPEG': JPEGSave
+      }
+
+      saveMethods[self.imageFormat]()
 
 
    def resizeLandscape(self, img, imgW, imgH):
@@ -88,8 +100,7 @@ class Batch:
          will resize image in landscape context
       """
       dimensions = (self.length, int(self.length * imgH/imgW))
-      resizeImg = img.resize(dimensions)
-      return resizeImg
+      return img.resize(dimensions)
       
 
    def resizePortrait(self, img, imgW, imgH):
@@ -97,8 +108,7 @@ class Batch:
          will resize image in portrait context
       """
       dimensions = (int(self.length * imgW/imgH), self.length)
-      resizeImg = img.resize(dimensions)
-      return resizeImg
+      return img.resize(dimensions)
 
    def batch(self):
       """
